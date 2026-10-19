@@ -1,0 +1,58 @@
+import { Game, TICRATE } from './game/game.js';
+import { draw, canvasSize } from './render/render.js';
+import { setLang, getLang } from './app/i18n.js';
+import { isTouchDevice, setupTouch } from './ui/touch.js';
+
+const KEYS = {
+  ArrowUp: 'up', KeyW: 'up', ArrowDown: 'down', KeyS: 'down',
+  ArrowLeft: 'left', KeyA: 'left', ArrowRight: 'right', KeyD: 'right',
+};
+const HI_KEY = 'mazechase.hi';
+const LANG_KEY = 'mazechase.lang';
+
+const store = {
+  get(k) { try { return localStorage.getItem(k); } catch { return null; } },
+  set(k, v) { try { localStorage.setItem(k, v); } catch { /* 저장이 막힌 환경 */ } },
+};
+
+const game = new Game();
+game.hiScore = Number(store.get(HI_KEY)) || 0;
+setLang(store.get(LANG_KEY) || (navigator.language?.startsWith('ko') ? 'ko' : 'en'));
+
+const canvas = document.getElementById('game');
+const ctx = canvas.getContext('2d');
+const size = canvasSize(game.maze);
+canvas.width = size.width;
+canvas.height = size.height;
+
+const langBtn = document.getElementById('lang');
+const showLang = () => { langBtn.textContent = getLang() === 'ko' ? 'EN' : '한'; };
+showLang();
+langBtn.addEventListener('click', () => {
+  setLang(getLang() === 'ko' ? 'en' : 'ko');
+  store.set(LANG_KEY, getLang());
+  showLang();
+  langBtn.blur();
+});
+
+if (isTouchDevice()) setupTouch(game);
+
+addEventListener('keydown', (e) => {
+  const dir = KEYS[e.code];
+  if (dir) { e.preventDefault(); game.setDir(dir); }
+  if (e.repeat || e.code === 'F5' || e.metaKey || e.ctrlKey) return;
+  game.start();
+});
+
+let last = performance.now(), acc = 0, savedHi = game.hiScore;
+function frame(now) {
+  acc += Math.min(now - last, 250);       // 탭이 멈췄다 돌아와도 한꺼번에 몰아 돌리지 않게
+  last = now;
+  const step = 1000 / TICRATE;
+  while (acc >= step) { game.tick(); acc -= step; }
+  if (game.hiScore !== savedHi && game.phase !== 'play') { savedHi = game.hiScore; store.set(HI_KEY, String(savedHi)); }
+  draw(ctx, game);
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+window.__game = game;     // 개발 중 콘솔에서 상태 확인용
