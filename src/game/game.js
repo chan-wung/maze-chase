@@ -4,6 +4,8 @@ import { Ghost, GHOST_DEFS } from './ghost.js';
 
 export const TICRATE = 60;
 const SPEED = { player: 0.125, ghost: 0.115, scared: 0.07, eaten: 0.25, leave: 0.07 };
+/** 모든 이동 속도에 곱하는 배율. 1 이 기본, 작을수록 느리다 */
+const SPEED_FACTOR = 0.8;
 /** [초, 모드]: 흩어지기와 쫓기를 번갈아. 마지막은 끝까지 쫓기 */
 const SCHEDULE = [[6, 'scatter'], [18, 'chase'], [6, 'scatter'], [18, 'chase'], [4, 'scatter'], [22, 'chase'], [4, 'scatter'], [Infinity, 'chase']];
 const SCORE = { dot: 10, power: 40, ghost: 150 };
@@ -136,7 +138,7 @@ export class Game {
 
     for (const g of ghosts) if (g.state === 'wait' && this.playTime >= g.def.release / this.speedScale) g.state = 'leave';
 
-    const k = this.speedScale;
+    const k = this.speedScale * SPEED_FACTOR;
     this.eatAt(player.tx, player.ty);
     player.step(SPEED.player * k, (p) => this.eatAt(p.tx, p.ty));
     if (this.dotsLeft <= 0) { this.phase = 'clear'; this.timer = 2 * TICRATE; return; }
