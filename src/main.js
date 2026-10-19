@@ -7,6 +7,7 @@ const KEYS = {
   ArrowUp: 'up', KeyW: 'up', ArrowDown: 'down', KeyS: 'down',
   ArrowLeft: 'left', KeyA: 'left', ArrowRight: 'right', KeyD: 'right',
 };
+const PAUSE_KEYS = new Set(['KeyP', 'Escape', 'Space']);
 const HI_KEY = 'mazechase.hi';
 const LANG_KEY = 'mazechase.lang';
 
@@ -41,8 +42,13 @@ addEventListener('keydown', (e) => {
   const dir = KEYS[e.code];
   if (dir) { e.preventDefault(); game.setDir(dir); }
   if (e.repeat || e.code === 'F5' || e.metaKey || e.ctrlKey) return;
+  if (PAUSE_KEYS.has(e.code)) { e.preventDefault(); game.togglePause(); }   // 타이틀·게임 오버에서는 아무 일 없이 start 로 넘어간다
   game.start();
 });
+
+const pauseBtn = document.getElementById('pause');
+pauseBtn.addEventListener('click', () => { game.togglePause(); pauseBtn.blur(); });
+document.addEventListener('visibilitychange', () => { if (document.hidden) game.pause(); });   // 다른 탭으로 가면 자동으로 멈춘다
 
 let last = performance.now(), acc = 0, savedHi = game.hiScore;
 function frame(now) {

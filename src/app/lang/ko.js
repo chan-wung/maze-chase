@@ -1,6 +1,6 @@
 export default {
-  'title': '미로 추격',
-  'title.sub': '점을 모두 먹고, 유령을 피하세요.',
+  'title': '치즈 체이스',
+  'title.sub': '치즈를 모두 먹고, 고양이를 피하세요.',
   'title.start': '아무 키나 눌러 시작',
   'title.controls': '방향키 / WASD 로 이동',
   'hud.score': '점수',
@@ -10,4 +10,6 @@ export default {
   'msg.over': '게임 오버',
   'msg.over.again': '아무 키나 눌러 다시 하기',
   'msg.clear': '단계 클리어!',
+  'msg.paused': '일시정지',
+  'msg.resume': 'P / Space 키 또는 화면 터치로 계속',
 };

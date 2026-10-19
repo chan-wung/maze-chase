@@ -5,10 +5,10 @@ import { Ghost, GHOST_DEFS } from './ghost.js';
 export const TICRATE = 60;
 const SPEED = { player: 0.125, ghost: 0.115, scared: 0.07, eaten: 0.25, leave: 0.07 };
 /** [초, 모드]: 흩어지기와 쫓기를 번갈아. 마지막은 끝까지 쫓기 */
-const SCHEDULE = [[7, 'scatter'], [20, 'chase'], [7, 'scatter'], [20, 'chase'], [5, 'scatter'], [20, 'chase'], [5, 'scatter'], [Infinity, 'chase']];
-const SCORE = { dot: 10, power: 50, ghost: 200 };
+const SCHEDULE = [[6, 'scatter'], [18, 'chase'], [6, 'scatter'], [18, 'chase'], [4, 'scatter'], [22, 'chase'], [4, 'scatter'], [Infinity, 'chase']];
+const SCORE = { dot: 10, power: 40, ghost: 150 };
 const START_LIVES = 3;
-const EXTRA_LIFE_AT = 10000;
+const EXTRA_LIFE_AT = 8000;
 
 /**
  * 게임 규칙 전체. 화면·키보드를 모르므로 node 에서 그대로 테스트할 수 있다.
@@ -23,11 +23,13 @@ export class Game {
     this.phase = 'title';
     this.hiScore = 0;
     this.frame = 0;
+    this.paused = false;
     this.newGame();
     this.phase = 'title';
   }
 
   newGame() {
+    this.paused = false;
     this.score = 0;
     this.lives = START_LIVES;
     this.level = 1;
@@ -60,7 +62,13 @@ export class Game {
     if (this.phase === 'title' || this.phase === 'over') { this.newGame(); }
   }
 
-  setDir(dir) { this.player.setWant(dir); }
+  setDir(dir) { if (!this.paused) this.player.setWant(dir); }
+
+  /** 일시정지는 타이틀·게임 오버 화면에서는 의미가 없다 */
+  get canPause() { return this.phase !== 'title' && this.phase !== 'over'; }
+  pause() { if (this.canPause) this.paused = true; }
+  resume() { this.paused = false; }
+  togglePause() { if (this.paused) this.resume(); else this.pause(); }
 
   get speedScale() { return 1 + 0.04 * Math.min(this.level - 1, 10); }
   get scaredTics() { return Math.round(Math.max(6 - (this.level - 1) * 0.8, 1) * TICRATE); }
@@ -92,6 +100,7 @@ export class Game {
   }
 
   tick() {
+    if (this.paused) return;
     this.frame++;
     switch (this.phase) {
       case 'ready':

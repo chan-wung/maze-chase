@@ -15,10 +15,10 @@ check('나머지는 집 안에서 기다린다', ghosts.slice(1).every((g) => g.
 // 목표 칸
 player.place(5, 14, null); player.facing = 'up';
 check('chaser: 플레이어 칸', JSON.stringify(ghosts[0].target(ctx())) === '{"x":5,"y":14}');
-check('ambusher: 플레이어 4칸 앞', JSON.stringify(ghosts[1].target(ctx())) === '{"x":5,"y":10}');
+check('ambusher: 플레이어 3칸 앞', JSON.stringify(ghosts[1].target(ctx())) === '{"x":5,"y":11}');
 ghosts[0].place(5, 18, 'up');
-const f = ghosts[2].target(ctx());     // 플레이어 2칸 앞 (5,12) 과 chaser(5,18) → (5, 18+2*(12-18)) = (5,6)
-check('flanker: chaser 와 플레이어 앞 지점을 잇는 선의 두 배', f.x === 5 && f.y === 6, JSON.stringify(f));
+const f = ghosts[2].target(ctx());     // 플레이어 3칸 앞 (5,11) 과 chaser(5,18) → (5, 18+2*(11-18)) = (5,4)
+check('flanker: chaser 와 플레이어 앞 지점을 잇는 선의 두 배', f.x === 5 && f.y === 4, JSON.stringify(f));
 ghosts[3].place(19, 19, 'left');
 check('shy: 멀면 플레이어 칸', JSON.stringify(ghosts[3].target(ctx())) === '{"x":5,"y":14}');
 ghosts[3].place(5, 16, 'left');

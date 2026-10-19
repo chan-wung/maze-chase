@@ -22,16 +22,16 @@ check('점을 먹으면 10점씩', g.score > 0 && g.score % 10 === 0 && g.dotsLe
 g = new Game({ rng: seq(0.5) }); go(g);
 g.ghosts.forEach((x) => { x.state = 'roam'; });
 g.eatAt(1, 1);
-check('큰 점: 50점 + 유령이 겁먹음', g.score === 50 && g.ghosts.every((x) => x.scared) && g.scaredTimer === 6 * TICRATE);
+check('큰 점: 40점 + 유령이 겁먹음', g.score === 40 && g.ghosts.every((x) => x.scared) && g.scaredTimer === 6 * TICRATE);
 
-// 겁먹은 유령 먹기: 200, 400
+// 겁먹은 유령 먹기: 150, 300
 g = new Game({ rng: seq(0.5) }); go(g);
 g.ghosts.forEach((x) => { x.state = 'roam'; x.scared = true; x.place(1, 19, null); });
 g.scaredTimer = 300;
 g.ghosts[0].place(g.player.tx, g.player.ty, null);
 g.ghosts[1].place(g.player.tx, g.player.ty, null);
 g.play();
-check('겁먹은 유령 연속으로 먹으면 200 → 400', g.score === 200 + 400 && g.ghosts[0].state === 'eaten' && g.ghosts[1].state === 'eaten' && g.phase === 'play', `score=${g.score}`);
+check('겁먹은 유령 연속으로 먹으면 150 → 300', g.score === 150 + 300 && g.ghosts[0].state === 'eaten' && g.ghosts[1].state === 'eaten' && g.phase === 'play', `score=${g.score}`);
 
 // 유령에게 닿으면 죽는다 → 목숨 -1 → 다시 ready
 g = new Game({ rng: seq(0.5) }); go(g);
@@ -64,13 +64,29 @@ check('다음 단계: 점이 다시 깔리고 ready', g.level === 2 && g.phase =
 g = new Game({ rng: seq(0.5) }); go(g);
 check('처음은 scatter', g.mode === 'scatter');
 g.ghosts.forEach((x) => { x.state = 'wait'; });
-tick(g, 7 * TICRATE);
-check('7초 뒤 chase', g.mode === 'chase', g.mode);
+tick(g, 6 * TICRATE);
+check('6초 뒤 chase', g.mode === 'chase', g.mode);
 
 // 보너스 목숨
-g = new Game(); go(g); g.score = 9990; g.addScore(10);
-check('10000점에 목숨 +1 (한 번만)', g.lives === 4); g.addScore(10000);
+g = new Game(); go(g); g.score = 7990; g.addScore(10);
+check('8000점에 목숨 +1 (한 번만)', g.lives === 4); g.addScore(10000);
 check('두 번째는 없다', g.lives === 4);
+
+// 일시정지: 시계·움직임이 멈추고 입력이 무시된다
+g = new Game({ rng: seq(0.5) });
+g.togglePause();
+check('타이틀에서는 일시정지가 안 된다', g.paused === false);
+go(g);
+g.togglePause();
+const snap = JSON.stringify([g.frame, g.playTime, g.modeTimer, g.player.x, g.player.y, g.ghosts.map((x) => [x.x, x.y])]);
+g.setDir('left'); tick(g, 120);
+check('멈춘 동안은 아무것도 변하지 않는다', g.paused && JSON.stringify([g.frame, g.playTime, g.modeTimer, g.player.x, g.player.y, g.ghosts.map((x) => [x.x, x.y])]) === snap);
+g.togglePause(); tick(g, 30);
+check('다시 누르면 계속 진행된다', !g.paused && g.frame > JSON.parse(snap)[0]);
+g.lives = 1; g.phase = 'dying'; g.timer = 1;
+tick(g, 2);
+g.togglePause();
+check('게임 오버에서는 일시정지가 안 된다', g.phase === 'over' && g.paused === false);
 
 // 한참 돌려도 상태가 깨지지 않는다 (무작위 입력)
 let rs = 12345; const rnd = () => (rs = (rs * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff;

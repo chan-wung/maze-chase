@@ -3,24 +3,26 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Maze Chase</title>
+  <title>Cheese Chase</title>
   <style>
-    html, body { margin: 0; height: 100%; background: #05060f; }
+    html, body { margin: 0; height: 100%; background: #140d08; }
     body { display: flex; align-items: center; justify-content: center; overflow: hidden; touch-action: none; }
     #game { display: block; width: 100vw; height: 100vh; object-fit: contain; image-rendering: pixelated; }
     /* 터치: 방향 패드. 세로 화면은 미로 아래 빈 곳 가운데, 가로(낮은) 화면은 오른쪽 아래 */
     #dpad { position: fixed; left: 50%; bottom: max(16px, env(safe-area-inset-bottom)); transform: translateX(-50%); width: 168px; height: 168px; display: grid; grid-template: repeat(3, 1fr) / repeat(3, 1fr); gap: 4px; opacity: .75; }
-    #dpad button { font-size: 22px; color: #fff; background: #1b2bd6; border: 0; border-radius: 12px; touch-action: none; -webkit-tap-highlight-color: transparent; }
-    #dpad button:active { background: #4a68ff; }
+    #dpad button { font-size: 22px; color: #fff; background: #5a3a1f; border: 0; border-radius: 12px; touch-action: none; -webkit-tap-highlight-color: transparent; }
+    #dpad button:active { background: #a8743f; }
     #dpad [data-dir=up] { grid-area: 1 / 2; } #dpad [data-dir=left] { grid-area: 2 / 1; }
     #dpad [data-dir=right] { grid-area: 2 / 3; } #dpad [data-dir=down] { grid-area: 3 / 2; }
     @media (orientation: landscape) { #dpad { left: auto; right: max(16px, env(safe-area-inset-right)); transform: none; width: 140px; height: 140px; } }
     @media (orientation: portrait) { body.touch #game { height: auto; max-height: calc(100vh - 200px); } }
-    #lang { position: fixed; top: 8px; right: 8px; padding: 4px 10px; font: 14px sans-serif; color: #fff; background: #1b2bd6; border: 0; border-radius: 4px; cursor: pointer; }
+    #pause { position: fixed; top: 8px; left: 8px; padding: 4px 10px; font: 14px sans-serif; color: #fff; background: #5a3a1f; border: 0; border-radius: 4px; cursor: pointer; }
+    #lang { position: fixed; top: 8px; right: 8px; padding: 4px 10px; font: 14px sans-serif; color: #fff; background: #5a3a1f; border: 0; border-radius: 4px; cursor: pointer; }
   </style>
 </head>
 <body>
   <canvas id="game"></canvas>
+  <button id="pause" type="button" aria-label="Pause">⏸</button>
   <button id="lang" type="button">EN</button>
   <script type="module" src="/src/main.js"></script>
 </body>

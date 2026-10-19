@@ -4,15 +4,16 @@ import { ORDER, OPPOSITE } from './maze.js';
 /**
  * 유령 네 마리. 쫓아오는 모양이 서로 달라서 한 마리만 피해서는 잡히게 된다.
  *  chaser   : 플레이어가 서 있는 칸을 그대로 쫓는다
- *  ambusher : 플레이어가 가는 방향 4칸 앞을 노려 길목을 막는다
- *  flanker  : chaser 와 '플레이어 2칸 앞'을 잇는 선을 두 배로 늘린 곳 = 반대편에서 끼어 든다
- *  shy      : 멀면 쫓고, 8칸 안으로 가까워지면 제 구석으로 도망간다
+ *  ambusher : 플레이어가 가는 방향 3칸 앞을 노려 길목을 막는다
+ *  flanker  : chaser 와 '플레이어 3칸 앞'을 잇는 선을 두 배로 늘린 곳 = 반대편에서 끼어 든다
+ *  shy      : 멀면 쫓고, 6칸 안으로 가까워지면 제 구석으로 도망간다
+ * pattern 은 고양이 털 무늬 (render.js 에서 그린다)
  */
 export const GHOST_DEFS = [
-  { id: 'chaser', color: '#ff3b30', corner: [19, 0], release: 0 },
-  { id: 'ambusher', color: '#ff8fd0', corner: [1, 0], release: 0 },
-  { id: 'flanker', color: '#35e0e6', corner: [19, 20], release: 300 },
-  { id: 'shy', color: '#ffa63d', corner: [1, 20], release: 600 },
+  { id: 'chaser', color: '#e8893a', pattern: 'stripe', corner: [19, 0], release: 0 },
+  { id: 'ambusher', color: '#2b2b2b', pattern: 'tuxedo', corner: [1, 0], release: 0 },
+  { id: 'flanker', color: '#9aa0a6', pattern: 'plain', corner: [19, 20], release: 300 },
+  { id: 'shy', color: '#f1e3c8', pattern: 'calico', corner: [1, 20], release: 600 },
 ];
 
 const sq = (ax, ay, bx, by) => (ax - bx) ** 2 + (ay - by) ** 2;
@@ -43,13 +44,13 @@ export class Ghost extends Actor {
     if (mode === 'scatter') return corner;
     const f = { up: [0, -1], left: [-1, 0], down: [0, 1], right: [1, 0] }[player.facing];
     switch (this.def.id) {
-      case 'ambusher': return { x: player.tx + f[0] * 4, y: player.ty + f[1] * 4 };
+      case 'ambusher': return { x: player.tx + f[0] * 3, y: player.ty + f[1] * 3 };
       case 'flanker': {
         const red = ctx.ghosts[0];
-        const px = player.tx + f[0] * 2, py = player.ty + f[1] * 2;
+        const px = player.tx + f[0] * 3, py = player.ty + f[1] * 3;
         return { x: red.tx + (px - red.tx) * 2, y: red.ty + (py - red.ty) * 2 };
       }
-      case 'shy': return sq(this.tx, this.ty, player.tx, player.ty) > 64 ? { x: player.tx, y: player.ty } : corner;
+      case 'shy': return sq(this.tx, this.ty, player.tx, player.ty) > 36 ? { x: player.tx, y: player.ty } : corner;
       default: return { x: player.tx, y: player.ty };
     }
   }

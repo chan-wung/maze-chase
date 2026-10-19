@@ -23,7 +23,8 @@ export function setupTouch(game, root = document.body) {
 
   let origin = null;
   root.addEventListener('pointerdown', (e) => {
-    if (e.target.closest('#lang, #dpad')) return;
+    if (e.target.closest('#lang, #pause, #dpad')) return;
+    if (game.paused) { game.resume(); return; }          // 멈춘 화면은 아무 곳이나 터치하면 계속
     game.start();
     origin = { x: e.clientX, y: e.clientY, id: e.pointerId };
     capture(root, e.pointerId);
